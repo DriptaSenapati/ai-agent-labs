@@ -48,17 +48,17 @@ const MeetAgent = () => {
     };
   }, [isPermissionGranted, mediaStream]);
 
-  // useEffect(() => {
-  //   const startAiAgent = async () => {
-  //     if (mediaStream && isPermissionGranted && webCamVideo.current) {
-  //       await conversation.startSession({
-  //         agentId: process.env.NEXT_PUBLIC_LABS_AGENT_ID!,
-  //       });
-  //     }
-  //   };
-  //   startAiAgent();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isPermissionGranted, mediaStream]);
+  useEffect(() => {
+    const startAiAgent = async () => {
+      if (mediaStream && isPermissionGranted && webCamVideo.current) {
+        await conversation.startSession({
+          agentId: process.env.NEXT_PUBLIC_LABS_AGENT_ID!,
+        });
+      }
+    };
+    startAiAgent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPermissionGranted, mediaStream]);
 
   useEffect(() => {
     if (micOn) {
