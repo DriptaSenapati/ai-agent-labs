@@ -30,9 +30,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${interSans.variable} ${geistMono.variable} antialiased`}
+      className={`dark ${interSans.variable} ${geistMono.variable} antialiased h-full`}
     >
-      <body>{children}</body>
+      <body className="h-full">{children}</body>
     </html>
   );
 }

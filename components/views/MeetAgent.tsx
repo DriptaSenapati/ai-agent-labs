@@ -73,8 +73,8 @@ const MeetAgent = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center p-16 relative">
-      <div className="h-[50vh] flex justify-center items-center gap-4 w-full max-md:flex-col max-md:gap-2 max-md:h-[80vh]">
+    <div className="h-full w-full flex items-center justify-center p-16 relative">
+      <div className="h-[50vh] flex justify-center items-center gap-4 w-full max-md:flex-col max-md:gap-2 max-md:h-[calc(100%-100px)]">
         <div className="h-full w-full bg-black rounded-3xl overflow-hidden">
           <video
             src="/ai_engine_video.mp4"
