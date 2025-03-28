@@ -48,17 +48,17 @@ const MeetAgent = () => {
     };
   }, [isPermissionGranted, mediaStream]);
 
-  useEffect(() => {
-    const startAiAgent = async () => {
-      if (mediaStream && isPermissionGranted && webCamVideo.current) {
-        await conversation.startSession({
-          agentId: process.env.NEXT_PUBLIC_LABS_AGENT_ID!,
-        });
-      }
-    };
-    startAiAgent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPermissionGranted, mediaStream]);
+  // useEffect(() => {
+  //   const startAiAgent = async () => {
+  //     if (mediaStream && isPermissionGranted && webCamVideo.current) {
+  //       await conversation.startSession({
+  //         agentId: process.env.NEXT_PUBLIC_LABS_AGENT_ID!,
+  //       });
+  //     }
+  //   };
+  //   startAiAgent();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isPermissionGranted, mediaStream]);
 
   useEffect(() => {
     if (micOn) {
@@ -89,7 +89,7 @@ const MeetAgent = () => {
             ref={webCamVideo}
             autoPlay
             muted
-            className="w-full h-auto absolute left-0 top-0 max-md:w-auto max-md:h-full"
+            className="w-full h-auto absolute left-0 top-0 max-md:w-full max-md:h-auto"
           />
         </div>
       </div>
