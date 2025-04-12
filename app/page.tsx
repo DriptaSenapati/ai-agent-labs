@@ -16,7 +16,7 @@ export default function Home() {
         <Link href="/call-agent">
           <Button className="mt-4 rounded-2xl p-5 text-sm" size={"lg"}>
             <Brain size={32} />
-            Start Conversation
+            Give a Test Call
           </Button>
         </Link>
       </div>

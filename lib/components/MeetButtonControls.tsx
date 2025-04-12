@@ -16,7 +16,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ChevronUp, Mic, MicOff, PhoneOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 type Props = {
@@ -51,10 +50,9 @@ const MeetButtonControls = ({
   const [audioInputDeviceId, setAudioInputDeviceId] = useState("");
   const [audioOutputDeviceId, setAudioOutputDeviceId] = useState("");
   const [videoInputDeviceID, setVideoInputDeviceID] = useState("");
-  const router = useRouter();
 
   const handleEndCall = async () => {
-    await handleStopConvesation().then(() => router.replace("/"));
+    await handleStopConvesation();
   };
 
   useEffect(() => {
