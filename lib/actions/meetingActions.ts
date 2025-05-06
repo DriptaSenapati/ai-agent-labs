@@ -34,8 +34,9 @@ const verifyAndGetQuestions = async (callId: string) => {
                 please ask the below questions one by one. You need to get answers before you ask next question.
                 ${(interviewResData.data.question.questionList as string[]).map((q) => (
                 `- ${q}`
-            )).join("\n")}
-            `
+            )).join("\n")},
+            `,
+            imageKey: interviewResData.data.identityImage,
         }
 
 

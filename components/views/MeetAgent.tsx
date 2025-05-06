@@ -6,20 +6,27 @@ import { Role, useConversation } from "@11labs/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import io, { Socket } from "socket.io-client";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertCircle } from "lucide-react";
+import AlertCountDown from "./AlertCountDown";
 
 type Props = {
   prompt?: string;
   callSlug?: string;
+  imageKey?: string;
 };
 
-const MeetAgent = ({ prompt, callSlug }: Props) => {
+const MeetAgent = ({ prompt, callSlug, imageKey }: Props) => {
   const webCamVideo = useRef<HTMLVideoElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [isPermissionGranted, setIsPermissionGranted] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [isSavingTranscript, setIsSavingTranscript] = useState(false);
-
+  const socketRef = useRef<SocketIOClient.Socket>(null);
+  const intervalRef = useRef<NodeJS.Timeout>(null);
   const router = useRouter();
+  const [showNoIdentityAlert, setShowNoIdentityAlert] = useState(false);
 
   const conversations = useRef<{ message: string; source: Role }[]>([]);
 
@@ -107,6 +114,7 @@ const MeetAgent = ({ prompt, callSlug }: Props) => {
         router.replace("/");
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaStream]);
 
   useEffect(() => {
@@ -124,6 +132,58 @@ const MeetAgent = ({ prompt, callSlug }: Props) => {
     startAiAgent();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionGranted]);
+
+  useEffect(() => {
+    if (mediaStream && status === "connected" && imageKey) {
+      const socket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL!, {
+        path: process.env.NEXT_PUBLIC_SOCKET_IO_PATH,
+      });
+
+      socketRef.current = socket;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      intervalRef.current = setInterval(() => {
+        if (!webCamVideo.current || !ctx) return;
+
+        canvas.width = webCamVideo.current.videoWidth;
+        canvas.height = webCamVideo.current.videoHeight;
+
+        ctx.drawImage(webCamVideo.current, 0, 0);
+        const frame = canvas.toDataURL("image/jpeg");
+
+        socket.emit("identity-matching-request", {
+          source: frame,
+          target: {
+            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME!,
+            Name: imageKey,
+          },
+        });
+
+        socket.on(
+          "identity-matching-response",
+          (data: { success: boolean; data: any; message: string }) => {
+            if (!data.success) {
+              if (!showNoIdentityAlert) setShowNoIdentityAlert(true);
+            }
+            if (data.success) {
+              if (showNoIdentityAlert) setShowNoIdentityAlert(false);
+            }
+          }
+        );
+      }, 100);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [imageKey, mediaStream, showNoIdentityAlert, status]);
 
   useEffect(() => {
     if (micOn) {
@@ -157,13 +217,20 @@ const MeetAgent = ({ prompt, callSlug }: Props) => {
                 autoPlay
               />
             </div>
-            <div className="h-full w-full bg-muted rounded-3xl relative overflow-hidden">
+            <div className="h-full w-full bg-muted rounded-3xl overflow-hidden relative">
               <video
                 ref={webCamVideo}
                 autoPlay
                 muted
-                className="w-full h-auto absolute left-0 top-0 max-md:w-full max-md:h-auto"
+                className="w-full h-auto transform translate-y-[-10%] max-md:w-full max-md:h-auto"
               />
+              {showNoIdentityAlert && (
+                <AlertCountDown
+                  showAlert={showNoIdentityAlert}
+                  timerCount={10}
+                  handleStopConvesation={handleStopConvesation}
+                />
+              )}
             </div>
           </>
         ) : status === "disconnected" && isSavingTranscript ? (
@@ -181,6 +248,18 @@ const MeetAgent = ({ prompt, callSlug }: Props) => {
         setMicOn={setMicOn}
         handleStopConvesation={handleStopConvesation}
       />
+      {showNoIdentityAlert && (
+        <div className="absolute bottom-[30px] left-[10px] z-[9999] max-md:left-[50%] max-md:translate-x-[-50%] max-md:w-[95%] max-md:top-[30px]">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Candidate not found</AlertTitle>
+            <AlertDescription>
+              Please be on camera within 10 seconds otherwise interview will be
+              cancelled
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
     </div>
   );
 };

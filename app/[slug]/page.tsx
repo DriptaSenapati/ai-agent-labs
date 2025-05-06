@@ -19,9 +19,7 @@ const AIMeeting = async (props: { params: Params }) => {
           <Alert variant="destructive" className="border-destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>
-              Call Id is either invalid or expired
-            </AlertDescription>
+            <AlertDescription>{meetingData.message}</AlertDescription>
           </Alert>
           <Link href={"/"}>
             <Button>Go to Main Page</Button>
@@ -31,7 +29,13 @@ const AIMeeting = async (props: { params: Params }) => {
     );
   }
 
-  return <MeetAgent prompt={meetingData.prompt!} callSlug={params.slug} />;
+  return (
+    <MeetAgent
+      prompt={meetingData.prompt!}
+      callSlug={params.slug}
+      imageKey={meetingData.imageKey}
+    />
+  );
 };
 
 export default AIMeeting;
