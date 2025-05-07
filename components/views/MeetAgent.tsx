@@ -137,9 +137,22 @@ const MeetAgent = ({ prompt, callSlug, imageKey }: Props) => {
     if (mediaStream && status === "connected" && imageKey) {
       const socket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL!, {
         path: process.env.NEXT_PUBLIC_SOCKET_IO_PATH,
+        reconnectionAttempts: 3,
       });
 
       socketRef.current = socket;
+
+      socket.io.on("reconnect_attempt", (attempt: number) => {
+        if (attempt === 3) {
+          toast.error(
+            "Failed to connect to web socket server. Maximum retry attempt reached. Shutting down in 5 seconds"
+          );
+          if (socketRef.current) socketRef.current.close();
+          setTimeout(() => {
+            handleStopConvesation();
+          }, 5000);
+        }
+      });
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -161,6 +174,12 @@ const MeetAgent = ({ prompt, callSlug, imageKey }: Props) => {
           },
         });
 
+        // socket.on("connect_error", (err: Error) => {
+        //   toast.error(
+        //     "Can't connect to web sokcet server. Trying to reconnect..."
+        //   );
+        // });
+
         socket.on(
           "identity-matching-response",
           (data: { success: boolean; data: any; message: string }) => {
@@ -172,7 +191,7 @@ const MeetAgent = ({ prompt, callSlug, imageKey }: Props) => {
             }
           }
         );
-      }, 100);
+      }, 3000);
     }
 
     return () => {
