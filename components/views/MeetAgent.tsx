@@ -269,10 +269,10 @@ const MeetAgent = ({ prompt, callSlug, imageKey }: Props) => {
       />
       {showNoIdentityAlert && (
         <div className="absolute bottom-[30px] left-[10px] z-[9999] max-md:left-[50%] max-md:translate-x-[-50%] max-md:w-[95%] max-md:top-[30px]">
-          <Alert variant="destructive">
+          <Alert className="bg-destructive text-white">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Candidate not found</AlertTitle>
-            <AlertDescription>
+            <AlertDescription className="text-white">
               Please be on camera within 10 seconds otherwise interview will be
               cancelled
             </AlertDescription>
